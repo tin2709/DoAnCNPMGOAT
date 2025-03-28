@@ -26,7 +26,9 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activeView, setAc
           </button>
         </div>
         <nav className='mt-8 space-y-4'>
-          <button className='flex items-center w-full p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700'>
+          <button
+           onClick={() => setActiveView('dashboard')} 
+          className='flex items-center w-full p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700' >
             <FiHome className='w-6 h-6 text-gray-600 dark:text-gray-300' />
             {sidebarOpen && <span className='ml-3 text-gray-700 dark:text-gray-300'>Dashboard</span>}
           </button>

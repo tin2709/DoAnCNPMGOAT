@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import UserManagement from '../components/UserManagement'
 import OrderManagement from './OrderManagement'
+import DashBoard from './DashBoard'
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -33,9 +34,15 @@ const AdminDashboard = () => {
         activeView={activeView}
         setActiveView={setActiveView}
       />
-      <main className='flex-1 overflow-auto p-8'>
-        {activeView === 'users' ? <UserManagement users={users} setUsers={setUsers} /> : <OrderManagement />}
-      </main>
+     <main className="flex-1 overflow-auto p-8">
+  {activeView === 'dashboard' ? (
+    <DashBoard />
+  ) : activeView === 'users' ? (
+    <UserManagement users={users} setUsers={setUsers} /> 
+  ) : (
+    <OrderManagement />
+  )}
+</main>
     </div>
   )
 }
