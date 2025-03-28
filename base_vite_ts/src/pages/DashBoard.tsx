@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -9,17 +9,33 @@ const Dashboard: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [data, setData] = useState<any[]>([]);
-
   const fetchStatistics = async () => {
-    if (!startDate || !endDate) return;
     try {
-      const response = await fetch(`/api/dashboard?start=${startDate}&end=${endDate}`);
-      const result = await response.json();
-      setData(result);
+      const response = await fetch("http://localhost:8080/dashboard");
+      const contentType = response.headers.get("content-type");
+  
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("❌ API trả về HTML:", text);
+        throw new Error("API không trả về JSON. Kiểm tra API!");
+      }
+  
+      const data = await response.json();
+      console.log("📊 Dữ liệu thống kê:", data);
+  
+      // Cập nhật state để hiển thị dữ liệu
+      setData(data);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+      console.error("❌ Lỗi khi lấy dữ liệu thống kê:", error);
     }
   };
+  
+
+  
+  
+  useEffect(() => {
+    fetchStatistics();
+  }, []);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -37,14 +53,19 @@ const Dashboard: React.FC = () => {
           <Button onClick={fetchStatistics}>Xem thống kê</Button>
         </div>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#4F46E5" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+        {data.length === 0 ? (
+  <p className="text-gray-500">Không có dữ liệu để hiển thị</p>
+) : (
+  <ResponsiveContainer width="100%" height={300}>
+    <LineChart data={data}>
+      <XAxis dataKey="date" />
+      <YAxis />
+      <Tooltip />
+      <Line type="monotone" dataKey="value" stroke="#4F46E5" strokeWidth={2} />
+    </LineChart>
+  </ResponsiveContainer>
+)}
+
         </CardContent>
       </Card>
     </div>
