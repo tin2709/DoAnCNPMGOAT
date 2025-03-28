@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    Arial;
+}
+:root {
+  background-color: rgba(128, 128, 128, 0.192);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.75rem;
+  text-align: left;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+.dark tbody tr:nth-child(odd) {
+  background-color: #2d2d2d;
+}
