@@ -22,10 +22,10 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "role_id", nullable = false)
-    @Column(name = "role", nullable = false)
-    private Integer role;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+//    @Column(name = "role_id", nullable = false)
+    private Role role;
 
     @Column(name = "password", nullable = false)
     private String password;
