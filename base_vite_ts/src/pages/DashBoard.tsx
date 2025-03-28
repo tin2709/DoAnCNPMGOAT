@@ -9,27 +9,51 @@ const Dashboard: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [data, setData] = useState<any[]>([]);
-  const fetchStatistics = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/dashboard");
-      const contentType = response.headers.get("content-type");
+  const transformDataToMonths = (data: any[]) => {
+    const months = Array(12).fill(0); // Tạo mảng 12 tháng với giá trị ban đầu là 0
   
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text();
-        console.error("❌ API trả về HTML:", text);
-        throw new Error("API không trả về JSON. Kiểm tra API!");
-      }
+    data.forEach((item) => {
+      const monthIndex = new Date(item.date).getMonth(); // Lấy tháng (0-11)
+      months[monthIndex] += item.value; // Cộng dồn giá trị vào tháng tương ứng
+    });
   
-      const data = await response.json();
-      console.log("📊 Dữ liệu thống kê:", data);
-  
-      // Cập nhật state để hiển thị dữ liệu
-      setData(data);
-    } catch (error) {
-      console.error("❌ Lỗi khi lấy dữ liệu thống kê:", error);
-    }
+    // Chuyển đổi về dạng phù hợp cho biểu đồ
+    return months.map((value, index) => ({
+      month: new Date(2025, index, 1).toLocaleString("en-US", { month: "short" }),
+      value: value,
+    }));
   };
-  
+  const [keyX, setKeyX] = useState("month"); // Mặc định hiển thị theo tháng
+
+const fetchStatistics = async () => {
+  try {
+    let url = "http://localhost:8080/dashboard";
+
+    let isFiltered = false;
+    if (startDate && endDate) {
+      url += `?start=${startDate}&end=${endDate}`;
+      isFiltered = true; // Có bộ lọc theo ngày
+    }
+
+    console.log("📡 Gọi API với URL:", url);
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Lỗi API: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("📊 Dữ liệu gốc:", data);
+
+    const transformedData = isFiltered ? data : transformDataToMonths(data);
+    console.log("📊 Dữ liệu đã chuyển đổi:", transformedData);
+
+    setKeyX(isFiltered ? "date" : "month"); // Cập nhật key X
+    setData(transformedData);
+  } catch (error) {
+    console.error("❌ Lỗi khi lấy dữ liệu thống kê:", error);
+  }
+};
 
   
   
@@ -54,18 +78,18 @@ const Dashboard: React.FC = () => {
         </div>
         <CardContent>
         {data.length === 0 ? (
-  <p className="text-gray-500">Không có dữ liệu để hiển thị</p>
-) : (
-  <ResponsiveContainer width="100%" height={300}>
-    <LineChart data={data}>
-      <XAxis dataKey="date" />
-      <YAxis />
-      <Tooltip />
-      <Line type="monotone" dataKey="value" stroke="#4F46E5" strokeWidth={2} />
-    </LineChart>
-  </ResponsiveContainer>
-)}
-
+    <div className="text-center text-gray-500">Không có dữ liệu để hiển thị.</div>
+  ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            
+            <LineChart data={data}>
+              <XAxis dataKey={keyX} />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="value" stroke="#4F46E5" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+  )}
         </CardContent>
       </Card>
     </div>
